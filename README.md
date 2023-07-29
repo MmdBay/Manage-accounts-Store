@@ -1,4 +1,4 @@
-# The following technologies are used in this project.
+# The following technologies are used in this project
 
 - React Js
 - Express Js
@@ -6,7 +6,7 @@
 - Styled Components
 - SqLite DB
 
-## The following libraries are also used.
+## The following libraries are also used
 
 - axios
 - body-parser
@@ -24,10 +24,18 @@
 - react-toastify
 - dompurify
 
+# features
+- Backup every change and send the file along with the changes in Telegram to the bot admin
+- Back up to transfer.sh soon
+- Using RestApi straight and stylish
+- Easy and stylish management
+
 ## Follow the steps below to get started
 
 
 #### NOTE: To run the project in developer mode, edit the .env file on the front-end side and set the value to **DEV**. To run the project in production mode, set the same value to **PROD** and then try to build.
+
+Also, after getting the build on the front-end side, move the Build folder to the server directory.
 
 ## Implementation steps
 download project and initial requirements
