@@ -70,7 +70,7 @@ function Status(props) {
   useEffect(() => {
     async function fetchdata() {
 // http://127.0.0.1:2086
-    fetch(`${process.env.REACT_APP_NODE_ENV === 'DEV' ? `http://127.0.0.1:2086/v1/count` : '/v1/count` '}`)
+    fetch(`${process.env.REACT_APP_NODE_ENV === 'DEV' ? `http://127.0.0.1:2086/v1/count` : '/v1/count`'}`)
       .then((res) => res.json())
       .then((data) => setCount(data.count))
       .catch((err) => console.error(err));
@@ -83,7 +83,7 @@ function Status(props) {
   }, []);
 
   const refreshUserCount = () => {
-    fetch(`${process.env.REACT_APP_NODE_ENV === 'DEV' ? `http://127.0.0.1:2086/v1/count` : '/v1/count` '}`)
+    fetch(`${process.env.REACT_APP_NODE_ENV === 'DEV' ? `http://127.0.0.1:2086/v1/count` : '/v1/count`'}`)
       .then((res) => res.json())
       .then((data) => setCount(data.count))
       .catch((err) => console.error(err));
