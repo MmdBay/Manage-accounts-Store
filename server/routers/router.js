@@ -54,14 +54,19 @@ module.exports = function (db) {
      * @returns {Object} The JSON response containing an array of customer objects.
      */
     router.get("/customers", (req, res) => {
-        db.all("SELECT * FROM users ORDER BY created_at DESC", (err, rows) => {
-            if (err) {
-                console.error(err);
-                res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR });
-            } else {
-                res.json(rows);
-            }
-        });
+        if (req.session && req.session.loggedIn) {
+            db.all("SELECT * FROM users ORDER BY created_at DESC", (err, rows) => {
+                if (err) {
+                    console.error(err);
+                    res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR });
+                } else {
+                    res.json(rows);
+                }
+            });
+        } else {
+            // User is not logged in or session is not saved
+            res.status(StatusCodes.UNAUTHORIZED).json({ error: "Unauthorized" });
+        }
     });
 
     /**
@@ -76,15 +81,20 @@ module.exports = function (db) {
      * @returns {Object} The JSON response containing the count of users.
      */
     router.get("/count", (req, res) => {
-        // Query the database for the number of users
-        db.get("SELECT COUNT(*) AS count FROM users", [], (err, row) => {
-            if (err) {
-                console.error(err);
-                res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR });
-            } else {
-                res.json({ count: row.count });
-            }
-        });
+        if (req.session && req.session.loggedIn) {
+            // Query the database for the number of users
+            db.get("SELECT COUNT(*) AS count FROM users", [], (err, row) => {
+                if (err) {
+                    console.error(err);
+                    res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR });
+                } else {
+                    res.json({ count: row.count });
+                }
+            });
+        } else {
+            // User is not logged in or session is not saved
+            res.status(StatusCodes.UNAUTHORIZED).json({ error: "Unauthorized" });
+        }
     });
 
     /**
@@ -102,31 +112,36 @@ module.exports = function (db) {
         router.get("/sum", (req, res) => {
             // Query the database for the total price of purchased products
             try {
-                let buy = "SELECT SUM(price) AS total FROM purchased_products";
-                db.all(buy, (err, rowsBuy) => {
-                    if (err) {
-                        console.error("Error Sum inside Router " + err);
-                        res.status(500).json({ error: "Server error" });
-                    } else {
-                        const totalBuy = rowsBuy[0].total || 0;
-                        try {
-                            // Query the database for the total price of received payments
-                            let receive = "SELECT SUM(price) AS total FROM recived_price";
-                            db.all(receive, (err, rowsReceive) => {
-                                if (err) {
-                                    console.error("Error Sum inside Router " + err);
-                                    res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR });
-                                } else {
-                                    const totalReceive = rowsReceive[0].total || 0;
-                                    const sum = totalBuy - totalReceive;
-                                    res.json({ sum_price: sum });
-                                }
-                            });
-                        } catch (error) {
-                            console.log("Error Sum inside Router:" + error);
+                if (req.session && req.session.loggedIn) {
+                    let buy = "SELECT SUM(price) AS total FROM purchased_products";
+                    db.all(buy, (err, rowsBuy) => {
+                        if (err) {
+                            console.error("Error Sum inside Router " + err);
+                            res.status(500).json({ error: "Server error" });
+                        } else {
+                            const totalBuy = rowsBuy[0].total || 0;
+                            try {
+                                // Query the database for the total price of received payments
+                                let receive = "SELECT SUM(price) AS total FROM recived_price";
+                                db.all(receive, (err, rowsReceive) => {
+                                    if (err) {
+                                        console.error("Error Sum inside Router " + err);
+                                        res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR });
+                                    } else {
+                                        const totalReceive = rowsReceive[0].total || 0;
+                                        const sum = totalBuy - totalReceive;
+                                        res.json({ sum_price: sum });
+                                    }
+                                });
+                            } catch (error) {
+                                console.log("Error Sum inside Router:" + error);
+                            }
                         }
-                    }
-                });
+                    });
+                } else {
+                    // User is not logged in or session is not saved
+                    res.status(StatusCodes.UNAUTHORIZED).json({ error: "Unauthorized" });
+                }
             } catch (error) {
                 console.log("Error Sum inside Router:" + error);
             }
@@ -149,27 +164,32 @@ module.exports = function (db) {
      * @returns {Object} The JSON response containing an array of purchased product objects.
      */
     router.get("/purchased_products/:userId", (req, res) => {
-        const userId = req.params.userId;
-        const sql = "SELECT * FROM purchased_products WHERE user_id = ?";
+        if (req.session && req.session.loggedIn) {
+            const userId = req.params.userId;
+            const sql = "SELECT * FROM purchased_products WHERE user_id = ?";
 
-        // Query the database for the purchased products for the given user
-        db.all(sql, [userId], (err, rows) => {
-            if (err) {
-                console.error(err);
-                res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR });
-            } else {
-                res.json(rows);
-                if (rows.length == 0) {
-                    const sql = "DELETE FROM recived_price WHERE user_id = ?";
-                    db.run(sql, [userId], (err) => {
-                        if (err) {
-                            console.error(err.message);
-                            return res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR, message: "Failed to add received price" });
-                        }
-                    });
-                }    
-            }
-        });
+            // Query the database for the purchased products for the given user
+            db.all(sql, [userId], (err, rows) => {
+                if (err) {
+                    console.error(err);
+                    res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR });
+                } else {
+                    res.json(rows);
+                    if (rows.length == 0) {
+                        const sql = "DELETE FROM recived_price WHERE user_id = ?";
+                        db.run(sql, [userId], (err) => {
+                            if (err) {
+                                console.error(err.message);
+                                return res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR, message: "Failed to add received price" });
+                            }
+                        });
+                    }
+                }
+            });
+        } else {
+            // User is not logged in or session is not saved
+            res.status(StatusCodes.UNAUTHORIZED).json({ error: "Unauthorized" });
+        }
     });
 
     /**
@@ -184,18 +204,23 @@ module.exports = function (db) {
      * @returns {Object} The JSON response containing an array of received payment objects.
      */
     router.get("/recived_price/:userId", (req, res) => {
-        const userId = req.params.userId;
-        const sql = "SELECT * FROM recived_price WHERE user_id = ?";
+        if (req.session && req.session.loggedIn) {
+            const userId = req.params.userId;
+            const sql = "SELECT * FROM recived_price WHERE user_id = ?";
 
-        // Query the database for the received payments for the given user
-        db.all(sql, [userId], (err, rows) => {
-            if (err) {
-                console.error(err);
-                res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR });
-            } else {
-                res.json(rows);
-            }
-        });
+            // Query the database for the received payments for the given user
+            db.all(sql, [userId], (err, rows) => {
+                if (err) {
+                    console.error(err);
+                    res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR });
+                } else {
+                    res.json(rows);
+                }
+            });
+        } else {
+            // User is not logged in or session is not saved
+            res.status(StatusCodes.UNAUTHORIZED).json({ error: "Unauthorized" });
+        }
     });
 
     // Return the router object

@@ -102,43 +102,48 @@ module.exports = function (bot, time, changeTime, db) {
  * @param {Object} req.body - Body of the request containing fields like user_id, price.
  */
     router.post("/recived_price/:userName/:userfamily", (req, res) => {
-        const userName = req.params.userName;
-        const userfamily = req.params.userfamily;
-        const { user_id, price } = req.body;
-        const sql =
-            "INSERT INTO recived_price (user_id, price, created_at) VALUES (?, ?, ?)";
+        if (req.session && req.session.loggedIn) {
+            const userName = req.params.userName;
+            const userfamily = req.params.userfamily;
+            const { user_id, price } = req.body;
+            const sql =
+                "INSERT INTO recived_price (user_id, price, created_at) VALUES (?, ?, ?)";
 
-        const updateDateQuery = `UPDATE users SET created_at = ? WHERE id = ?`;
-        db.run(updateDateQuery, [time(), user_id], function (err) {
-            if (err) {
-                console.error(err.message);
-                return res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR, message: "Failed to add received price" });
-            }
-            db.run(
-                sql,
-                [user_id, price, changeTime(time())],
-                function (err) {
-                    if (err) {
-                        console.error(err.message);
-                        return res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR, message: "Failed to add received price" });
-                    }
-                    res.json({ id: this.lastID });
-                    bot.telegram.sendDocument(
-                        process.env.BOT_ADMIN,
-                        { source: "./db/customer.db" },
-                        {
-                            caption: `<b><u>وجه دریافتی :</u></b>
+            const updateDateQuery = `UPDATE users SET created_at = ? WHERE id = ?`;
+            db.run(updateDateQuery, [time(), user_id], function (err) {
+                if (err) {
+                    console.error(err.message);
+                    return res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR, message: "Failed to add received price" });
+                }
+                db.run(
+                    sql,
+                    [user_id, price, changeTime(time())],
+                    function (err) {
+                        if (err) {
+                            console.error(err.message);
+                            return res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR, message: "Failed to add received price" });
+                        }
+                        res.json({ id: this.lastID });
+                        bot.telegram.sendDocument(
+                            process.env.BOT_ADMIN,
+                            { source: "./db/customer.db" },
+                            {
+                                caption: `<b><u>وجه دریافتی :</u></b>
   
   در : <code>${changeTime(time())}</code>
   نام مشتری : <b>${userName} ${userfamily}</b>
   مبلغ : <b>${price}</b>
   .`,
-                            parse_mode: "HTML",
-                        }
-                    );
-                }
-            );
-        });
+                                parse_mode: "HTML",
+                            }
+                        );
+                    }
+                );
+            });
+        } else {
+            // User is not logged in or session is not saved
+            res.status(StatusCodes.UNAUTHORIZED).json({ error: "Unauthorized" });
+        }
     });
 
     /**
@@ -147,42 +152,47 @@ module.exports = function (bot, time, changeTime, db) {
  * @param {Object} req.body - Body of the request containing fields like name, family, phone.
  */
     router.post("/adduser", (req, res) => {
-        const { name, family, phone } = req.body;
+        if (req.session && req.session.loggedIn) {
+            const { name, family, phone } = req.body;
 
-        // Validate the request body
-        if (!name || !family || !phone) {
-            return res.json({ error: StatusCodes.NOT_FOUND, message: "Name, family, and phone are required" });
-        }
+            // Validate the request body
+            if (!name || !family || !phone) {
+                return res.json({ error: StatusCodes.NOT_FOUND, message: "Name, family, and phone are required" });
+            }
 
-        // Insert the user data into the database
-        db.run(
-            "INSERT INTO users (name, family, phone, created_at) VALUES (?, ?, ?, ?)",
-            [name, family, phone, time()],
-            function (err) {
-                if (err) {
-                    console.error(err.message);
-                    return res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR, message: "Failed to add user" });
-                }
+            // Insert the user data into the database
+            db.run(
+                "INSERT INTO users (name, family, phone, created_at) VALUES (?, ?, ?, ?)",
+                [name, family, phone, time()],
+                function (err) {
+                    if (err) {
+                        console.error(err.message);
+                        return res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR, message: "Failed to add user" });
+                    }
 
-                console.log(`User ${this.lastID} added to the database`);
+                    console.log(`User ${this.lastID} added to the database`);
 
-                // Send a response indicating success
-                res.send("User added successfully");
-                bot.telegram.sendDocument(
-                    process.env.BOT_ADMIN,
-                    { source: "./db/customer.db" },
-                    {
-                        caption: `<b><u>افزودن مشتری : </u></b>
+                    // Send a response indicating success
+                    res.send("User added successfully");
+                    bot.telegram.sendDocument(
+                        process.env.BOT_ADMIN,
+                        { source: "./db/customer.db" },
+                        {
+                            caption: `<b><u>افزودن مشتری : </u></b>
         
 در : <code>${changeTime(time())}</code>
 نام مشتری : <b>${name} ${family}</b>
 شماره تماس مشتری : <b>${phone}</b>
 .`,
-                        parse_mode: "HTML",
-                    }
-                );
-            }
-        );
+                            parse_mode: "HTML",
+                        }
+                    );
+                }
+            );
+        } else {
+            // User is not logged in or session is not saved
+            res.status(StatusCodes.UNAUTHORIZED).json({ error: "Unauthorized" });
+        }
     });
 
     return router

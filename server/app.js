@@ -38,6 +38,13 @@ const PORT = process.env.PORT || 2086;
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 /**
+ * Sets up a CORS (Cross-Origin Resource Sharing) middleware for the Express.js application instance.
+ * @returns {void}
+ */
+app.use(cors());
+
+
+/**
  * The HTTP status codes module.
  * @external http-status-codes
  * @see {@link https://www.npmjs.com/package/http-status-codes|http-status-codes}
@@ -108,15 +115,11 @@ const limiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   handler: (req, res) => {
     // Send an error message to the user indicating that they have exceeded the rate limit
-    res.status(StatusCodes.TOO_MANY_REQUESTS).json({ip: req.ip, message: 'Too many requests, please try again later.' });
+    res.status(StatusCodes.TOO_MANY_REQUESTS).json({ ip: req.ip, message: 'Too many requests, please try again later.' });
   },
 });
 
-/**
- * Sets up a CORS (Cross-Origin Resource Sharing) middleware for the Express.js application instance.
- * @returns {void}
- */
-app.use(cors());
+
 
 /**
  * Middleware that adds security-related HTTP headers to the response.
@@ -125,6 +128,7 @@ app.use(cors());
  * @returns {function} Returns a middleware function that can be used with Express.js.
 */
 app.use(helmet({
+  referrerPolicy: false,
   contentSecurityPolicy: {
     directives: {
       // Allow requests to http://api-bdc.net
@@ -159,10 +163,10 @@ app.use(express.static(path.join(__dirname, "build")));
  */
 app.use(
   session({
-      secret: "mohammadhasanbeygi1376",
-      resave: false,
-      saveUninitialized: true,
-      cookie: { maxAge: 3 * 24 * 60 * 60 * 1000 },
+    secret: "mohammadhasanbeygi1376",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 3 * 24 * 60 * 60 * 1000 },
   })
 );
 
@@ -244,19 +248,19 @@ app.use('/api/edit', editRouter);
  * @returns {void}
  */
 
-    /**
-     * Default route handler for 404 errors.
-     *
-     * @name GET /*
-     * @function
-     * @inner
-     * @param {Object} req - The Express request object.
-     * @param {Object} res - The Express response object.
-     * @returns {Object} The response containing a 404 status code.
-     */
-    app.get('*', (req, res) => {
-      res.json({ error: StatusCodes.NOT_FOUND });
-  });
+/**
+ * Default route handler for 404 errors.
+ *
+ * @name GET /*
+ * @function
+ * @inner
+ * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ * @returns {Object} The response containing a 404 status code.
+ */
+app.get('*', (req, res) => {
+  res.json({ error: StatusCodes.NOT_FOUND });
+});
 
 
 if (process.env.NODE_ENV === 'PRO') {
