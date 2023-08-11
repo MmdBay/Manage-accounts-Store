@@ -53,8 +53,8 @@ You must replace the following values ​​with your own information
 - BOT_TOKEN= Telegeram Bot Token
 - BOT_ADMIN= Telegeram ChatId Admin Bot
 - USER_NAME= user name
-- PASSWORD=1 password
-- NODE_ENV=DEV
+- PASSWORD= password
+- NODE_ENV= DEV
 
 ### Follow the steps below to get an SSL security certificate
 
