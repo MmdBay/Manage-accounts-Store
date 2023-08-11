@@ -43,7 +43,6 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
  */
 app.use(cors());
 
-
 /**
  * The HTTP status codes module.
  * @external http-status-codes
@@ -110,7 +109,7 @@ const limiter = rateLimit({
    */
   windowMs: 15 * 60 * 1000, // 15 minutes
   message: 'Too many requests, please try again later.',
-  max: 10, // Limit each IP address to 50 requests per `windowMs` (here, per 15 minutes)
+  max: 5, // Limit each IP address to 50 requests per `windowMs` (here, per 15 minutes)
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   handler: (req, res) => {
@@ -121,21 +120,24 @@ const limiter = rateLimit({
 
 
 
-/**
- * Middleware that adds security-related HTTP headers to the response.
- * @function
- * @name helmet
- * @returns {function} Returns a middleware function that can be used with Express.js.
-*/
-app.use(helmet({
-  referrerPolicy: false,
-  contentSecurityPolicy: {
-    directives: {
-      // Allow requests to http://api-bdc.net
-      'connect-src': ["'self'", "https://api.ipify.org/?format=json"]
-    }
-  }
-}));
+// /**
+//  * Middleware that adds security-related HTTP headers to the response.
+//  * @function
+//  * @name helmet
+//  * @returns {function} Returns a middleware function that can be used with Express.js.
+// */
+// app.use(helmet({
+//   referrerPolicy: {
+//     policy: "no-referrer",
+//   },
+//   contentSecurityPolicy: {
+//     directives: {
+//       // Allow requests to http://api-bdc.net
+//       'connect-src': ["'self'", "https://api.ipify.org/?format=json"]
+//     }
+//   }
+// }));
+
 
 /**
  * Sets up a middleware for parsing JSON data in the request body of the Express.js application instance.

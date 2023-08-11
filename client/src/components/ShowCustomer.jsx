@@ -146,7 +146,7 @@ const UserList = () => {
       setFilteredUsers(users.slice(0, 5));
     } else {
       const filtered = users.filter((user) => {
-        const fullName = `${user.name} ${user.family}`;
+        const fullName = `${user.id}${user.name}${user.family}`;
         return fullName.toLowerCase().includes(searchQuery.toLowerCase());
       });
       setFilteredUsers(filtered);
@@ -200,7 +200,7 @@ const UserList = () => {
       {filteredUsers.slice(0, filteredUsers.length).map((user) => (
         <div className="main" key={user.id}>
           <span onClick={() => openModal(user.id)}>
-            {user.name} {user.family}{" "}
+            {user.id}. {user.name} {user.family}{" "}
             <CoustomerDate>
               آخرین آپدیت :{" "}
               {user.created_at && typeof user.created_at === "number"

@@ -13,7 +13,7 @@ const Product = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
-  background-color: #000000c1;
+  background-color: #000000b7;
   padding: 8px;
   border-radius: 4px;
   color: #fff;
@@ -159,6 +159,7 @@ const PurchasedProducts = ({ userId, refrshUsers }) => {
   const [editeRecived, setEditeRecived] = useState(null);
   const [editedRecivedPrice, setEditedRecivedPrice] = useState("");
 
+  console.log(products);
   useEffect(() => {
     async function fetchProducts() {
       setLoading(true);
@@ -253,7 +254,6 @@ const PurchasedProducts = ({ userId, refrshUsers }) => {
           editedProductPrice.toString().trim().replace(/,/g, "")
         ),
       };
-      // http://127.0.0.1:2086/
       await axios.put(
         `${process.env.REACT_APP_NODE_ENV === 'DEV' ? `http://127.0.0.1:2086/api/edit/purchased_products/${editingProduct.id}/${editingProduct.user_id}` : `/api/edit/purchased_products/${editingProduct.id}/${editingProduct.user_id}`}`,
         editedProduct

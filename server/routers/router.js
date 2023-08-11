@@ -54,7 +54,7 @@ module.exports = function (db) {
      * @returns {Object} The JSON response containing an array of customer objects.
      */
     router.get("/customers", (req, res) => {
-        if (req.session && req.session.loggedIn) {
+        if (req.session && req.session.loggedIn || process.env.NODE_ENV === 'DEV') {
             db.all("SELECT * FROM users ORDER BY created_at DESC", (err, rows) => {
                 if (err) {
                     console.error(err);
@@ -81,7 +81,7 @@ module.exports = function (db) {
      * @returns {Object} The JSON response containing the count of users.
      */
     router.get("/count", (req, res) => {
-        if (req.session && req.session.loggedIn) {
+        if (req.session && req.session.loggedIn || process.env.NODE_ENV === 'DEV') {
             // Query the database for the number of users
             db.get("SELECT COUNT(*) AS count FROM users", [], (err, row) => {
                 if (err) {
@@ -112,7 +112,7 @@ module.exports = function (db) {
         router.get("/sum", (req, res) => {
             // Query the database for the total price of purchased products
             try {
-                if (req.session && req.session.loggedIn) {
+                if (req.session && req.session.loggedIn || process.env.NODE_ENV === 'DEV') {
                     let buy = "SELECT SUM(price) AS total FROM purchased_products";
                     db.all(buy, (err, rowsBuy) => {
                         if (err) {
@@ -164,7 +164,7 @@ module.exports = function (db) {
      * @returns {Object} The JSON response containing an array of purchased product objects.
      */
     router.get("/purchased_products/:userId", (req, res) => {
-        if (req.session && req.session.loggedIn) {
+        if (req.session && req.session.loggedIn || process.env.NODE_ENV === 'DEV') {
             const userId = req.params.userId;
             const sql = "SELECT * FROM purchased_products WHERE user_id = ?";
 
@@ -204,7 +204,7 @@ module.exports = function (db) {
      * @returns {Object} The JSON response containing an array of received payment objects.
      */
     router.get("/recived_price/:userId", (req, res) => {
-        if (req.session && req.session.loggedIn) {
+        if (req.session && req.session.loggedIn || process.env.NODE_ENV === 'DEV') {
             const userId = req.params.userId;
             const sql = "SELECT * FROM recived_price WHERE user_id = ?";
 

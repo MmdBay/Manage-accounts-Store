@@ -12,6 +12,11 @@
 /client/node_modules/
 /server/build/
 /server/node_modules/
+/server/db/customer.db
+/client/.gitignore
+/server/.gitignore
+/server/cert.crt
+/server/private.key
 
 # misc
 .DS_Store

@@ -53,7 +53,7 @@ module.exports = function (bot, time, changeTime, db) {
     router.delete(
         "/purchased_products/:productId/:userId/:nameProduct",
         (req, res) => {
-            if (req.session && req.session.loggedIn) {
+            if (req.session && req.session.loggedIn || process.env.NODE_ENV === 'DEV') {
 
                 const productId = req.params.productId;
                 const nameProduct = req.params.nameProduct;
@@ -104,7 +104,7 @@ module.exports = function (bot, time, changeTime, db) {
     router.delete(
         "/recived_price/:productId/:userId/:nameProduct",
         (req, res) => {
-            if (req.session && req.session.loggedIn) {
+            if (req.session && req.session.loggedIn || process.env.NODE_ENV === 'DEV') {
 
                 const productId = req.params.productId;
                 const nameProduct = req.params.nameProduct;
@@ -153,7 +153,7 @@ module.exports = function (bot, time, changeTime, db) {
  * @param {Object} res - The response object.
  */
     router.delete("/users/:id/:name/:family", (req, res) => {
-        if (req.session && req.session.loggedIn) {
+        if (req.session && req.session.loggedIn || process.env.NODE_ENV === 'DEV') {
 
             const Id = req.params.id;
             const name = req.params.name;

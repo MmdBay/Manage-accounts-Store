@@ -54,44 +54,50 @@ module.exports = function (bot, time, changeTime, db) {
  * @returns {Object} Express router handling related routes.
  */
     router.post("/purchased_products/:userName/:userfamily", (req, res) => {
-        const userName = req.params.userName;
-        const userfamily = req.params.userfamily;
-        const { user_id, product_name, price } = req.body;
-        const sql =
-            "INSERT INTO purchased_products (user_id, product_name, price, created_at) VALUES (?, ?, ?, ?)";
+        if (req.session && req.session.loggedIn || process.env.NODE_ENV === 'DEV') {
 
-        const updateDateQuery = `UPDATE users SET created_at = ? WHERE id = ?`;
-        db.run(updateDateQuery, [time(), user_id], function (err) {
-            if (err) {
-                console.error(err.message);
-                return res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR, message: "Failed to add received price" });
-            }
-            db.run(
-                sql,
-                [user_id, product_name, price, changeTime(time())],
-                function (err) {
-                    if (err) {
-                        console.error(err.message);
-                        return res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR, message: "Failed to add received price" });
-                    }
-                    res.json({ id: this.lastID });
-                    bot.telegram.sendDocument(
-                        process.env.BOT_ADMIN,
-                        { source: "./db/customer.db" },
-                        {
-                            caption: `<b><u>افزودن کالا :</u></b>
+            const userName = req.params.userName;
+            const userfamily = req.params.userfamily;
+            const { user_id, product_name, price } = req.body;
+            const sql =
+                "INSERT INTO purchased_products (user_id, product_name, price, created_at) VALUES (?, ?, ?, ?)";
+
+            const updateDateQuery = `UPDATE users SET created_at = ? WHERE id = ?`;
+            db.run(updateDateQuery, [time(), user_id], function (err) {
+                if (err) {
+                    console.error(err.message);
+                    return res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR, message: "Failed to add received price" });
+                }
+                db.run(
+                    sql,
+                    [user_id, product_name, price, changeTime(time())],
+                    function (err) {
+                        if (err) {
+                            console.error(err.message);
+                            return res.json({ error: StatusCodes.INTERNAL_SERVER_ERROR, message: "Failed to add received price" });
+                        }
+                        res.json({ id: this.lastID });
+                        bot.telegram.sendDocument(
+                            process.env.BOT_ADMIN,
+                            { source: "./db/customer.db" },
+                            {
+                                caption: `<b><u>افزودن کالا :</u></b>
   
   در : <code>${changeTime(time())}</code>
   نام مشتری : <b>${userName} ${userfamily}</b>
   نام محصول : <b>${product_name}</b>
   مبلغ : <b>${price}</b>
   .`,
-                            parse_mode: "HTML",
-                        }
-                    );
-                }
-            );
-        });
+                                parse_mode: "HTML",
+                            }
+                        );
+                    }
+                );
+            });
+        } else {
+            // User is not logged in or session is not saved
+            res.status(StatusCodes.UNAUTHORIZED).json({ error: "Unauthorized" });
+        }
     });
 
     /**
@@ -102,7 +108,7 @@ module.exports = function (bot, time, changeTime, db) {
  * @param {Object} req.body - Body of the request containing fields like user_id, price.
  */
     router.post("/recived_price/:userName/:userfamily", (req, res) => {
-        if (req.session && req.session.loggedIn) {
+        if (req.session && req.session.loggedIn || process.env.NODE_ENV === 'DEV') {
             const userName = req.params.userName;
             const userfamily = req.params.userfamily;
             const { user_id, price } = req.body;
@@ -152,7 +158,7 @@ module.exports = function (bot, time, changeTime, db) {
  * @param {Object} req.body - Body of the request containing fields like name, family, phone.
  */
     router.post("/adduser", (req, res) => {
-        if (req.session && req.session.loggedIn) {
+        if (req.session && req.session.loggedIn || process.env.NODE_ENV === 'DEV') {
             const { name, family, phone } = req.body;
 
             // Validate the request body

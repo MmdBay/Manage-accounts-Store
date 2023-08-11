@@ -53,7 +53,7 @@ module.exports = function (bot, time, changeTime, db) {
  * @param {Object} req.body - Body of the request which contains the updated data for purchased product.
  */
     router.put("/purchased_products/:id/:userId", (req, res) => {
-        if (req.session && req.session.loggedIn) {
+        if (req.session && req.session.loggedIn || process.env.NODE_ENV === 'DEV') {
 
             const purchasedProductId = req.params.id;
             const userId = req.params.userId;
@@ -119,7 +119,7 @@ module.exports = function (bot, time, changeTime, db) {
  * @param {Object} req.body - Body of the request which contains the updated data for received price.
  */
     router.put("/recived_price/:id/:userId", (req, res) => {
-        if (req.session && req.session.loggedIn) {
+        if (req.session && req.session.loggedIn || process.env.NODE_ENV === 'DEV') {
 
             const recivedPriceId = req.params.id;
             const userId = req.params.userId;
