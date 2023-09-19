@@ -143,7 +143,7 @@ const UserList = () => {
 
   useEffect(() => {
     if (searchQuery.trim() === "") {
-      setFilteredUsers(users.slice(0, 5));
+      setFilteredUsers(users);
     } else {
       const filtered = users.filter((user) => {
         const fullName = `${user.id}${user.name}${user.family}`;
@@ -197,10 +197,10 @@ const UserList = () => {
           />
         ) : null}
       </div>
-      {filteredUsers.slice(0, filteredUsers.length).map((user) => (
+      {filteredUsers.slice(0, filteredUsers.length).map((user, index) => (
         <div className="main" key={user.id}>
           <span onClick={() => openModal(user.id)}>
-            {user.id}. {user.name} {user.family}{" "}
+            {index+1}. {user.name} {user.family}{" "} [ شماره مشتری - {user.id} ]
             <CoustomerDate>
               آخرین آپدیت :{" "}
               {user.created_at && typeof user.created_at === "number"
